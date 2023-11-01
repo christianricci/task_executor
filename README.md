@@ -1,34 +1,35 @@
 # Task Executor
-
 Task executor is a tools that help to automate task executions at big scale by adding shell commands in a database and executing them in parallel.
-
 ## Build and Install
 ```
 python setup.py sdist
 pip install dist/task_executor-0.1.tar.gz
 ```
-
 ### Create database
 ```
 python -m task_executor.shell_executor create_executor_db
 ```
-
 ### Add tasks
+Single task
 ```
-cat <<EOF | sqlite3 <SAME_DB_FILE_NAME>.sqlite | bash
-select distinct
-'python -m task_executor.shell_executor ' ||
-'add_command sandpit '||
-'''{"command": ["az","tag","list","--resource-id","'||ResourceId ||'"]}'''
-from billing
-where SubscriptionName = 'sandpit';
-EOF
+python -m task_executor.shell_executor add_command my-tag '{"command": ["echo", "hello-world-!!!"]}'
 ```
 Or and a dummy data for testing (tag is my-tag in this case)
 ```
 for i in {1..20}; do 
 echo "python -m task_executor.shell_executor add_command my-tag '{ \"command\": [ \"bash\", \"-c\",\"echo \\\"print number ${i}\\\";sleep 1;date\"]}'" | bash
 done
+```
+Or from a query
+```
+cat <<EOF | sqlite3 <SAME_DB_FILE_NAME>.sqlite | bash
+select distinct
+'python -m task_executor.shell_executor ' ||
+'add_command my-tag '||
+'''{"command": ["az","tag","list","--resource-id","'||ResourceId ||'"]}'''
+from billing
+where SubscriptionName = 'sandpit';
+EOF
 ```
 ### Add multi tasks
 ```
@@ -43,11 +44,12 @@ python -m task_executor.shell_executor add_multi_command sandpit commands.txt
 ```
 ### Run tasks
 ```
-python -m task_executor.shell_executor run_command sandpit 6 3
+python -m task_executor.shell_executor run_command my-tag 6 3
 ```
-
 ## Database Output
 ```
+$ sqlite3 shell-executor.sqlite
+sqlite> .mode table
 sqlite> select * from tasks;
 +----+-----------+-------------------------------------+-----------------+----------------------------+----------------------------+
 | id |    tag    |               content               |     status      |         created_at         |         updated_at         |
