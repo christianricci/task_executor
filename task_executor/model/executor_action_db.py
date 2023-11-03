@@ -34,7 +34,7 @@ from .orm import Status, Task, TaskLog
 class ExecutorActionDB:
     def __init__(self, db_file_full_path: str, echo=True):
         self.db_file_full_path = db_file_full_path
-        self.engine = create_engine(f'sqlite:///{self.db_file_full_path}', echo=echo)
+        self.engine = create_engine(f'sqlite:///{self.db_file_full_path}', echo=echo, pool_size=0, max_overflow=-1)
         self.session = sessionmaker(bind=self.engine)
         self.logger = logging.getLogger(__class__.__name__)
 
