@@ -88,3 +88,19 @@ $ PYTHONPATH=<PATH_TO_WORKSPACE>/task_executor/sample.py
 Execution returnCode: [0, 0, 1, 0, 0]
 2023-10-20 21:04:45.486748 -> finished
 ```
+## Run from Docker
+```
+$ git clone https://github.com/christianricci/task_executor.git
+$ cd task_executor
+$ cat Dockerfile
+
+$ docker build .
+$ docker tag <image_id> task-executor:latest # Get the id from the previous cmd output
+$ docker run -d -i --name task_executor task-executor:latest
+
+$ docker exec -ti task_executor python -m task_executor.shell_executor
+$ docker exec -ti task_executor python -m task_executor.shell_executor create_executor_db
+$ docker exec -ti task_executor python -m task_executor.shell_executor add_command my-tag '{"command": ["echo","\"Hello World!!!\""]}'
+$ docker exec -ti task_executor python -m task_executor.shell_executor run_command my-tag 1 1
+$ docker exec -ti task_executor cat /task_executor/shell-executor.debug.log
+```
